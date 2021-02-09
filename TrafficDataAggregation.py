@@ -240,9 +240,7 @@ raw_data_resolution = 20
 i = 0
 path = 'StationByStation'
 station_data = up_data.copy()
-up_data.columns
-up_data.Speed.describe()
-plt.show()
+
 
 if __name__ == '__main__':
     # read the final segment map
