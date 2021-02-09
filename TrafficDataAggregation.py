@@ -64,8 +64,8 @@ def data_aggregation(station_data, raw_data_resolution, start_year, end_year):
     :return: five aggregated dataframes
     """
     # extract data based on the analysis period
-    station_data = station_data[(station_data['Timestamp'] >= datetime.datetime.strptime('{}-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'.format(start_year)))
-                                & (station_data['Timestamp'] <= datetime.datetime.strptime('{}-12-31 23:59:59', '%Y-%m-%d %H:%M:%S'.format(end_year)))].reset_index(drop=True)
+    station_data = station_data[(station_data['Timestamp'] >= datetime.datetime.strptime('{}-01-01 00:00:00'.format(start_year), '%Y-%m-%d %H:%M:%S'))
+                                & (station_data['Timestamp'] <= datetime.datetime.strptime('{}-12-31 23:59:59'.format(end_year), '%Y-%m-%d %H:%M:%S'))].reset_index(drop=True)
 
     # initial data cleaning
     station_data = data_cleaning(station_data)
@@ -125,13 +125,13 @@ def data_aggregation(station_data, raw_data_resolution, start_year, end_year):
 
 def main(Final_segment_map, path, raw_data_resolution, start_year, end_year):
     """
-
-    :param Final_segment_map:
-    :param path:
-    :param raw_data_resolution:
-    :param start_year:
-    :param end_year:
-    :return:
+    get the upstream and downstream aggregated traffic data for every segment
+    :param Final_segment_map: dataframe, the final segment base map
+    :param path: string, the folder path for detector station data
+    :param raw_data_resolution: int, the resolution of the raw traffic data
+    :param start_year: int, the start year of the analysis period
+    :param end_year: int, the end year of the analysis period
+    :return: five aggregated dataframes for all segments
     """
     # create empty data
     total_weekday_hourly = []
@@ -140,15 +140,20 @@ def main(Final_segment_map, path, raw_data_resolution, start_year, end_year):
     total_day_of_week = []
     total_average_daily = []
 
+    # loop through all the segments in the final segment map
     for i in range(len(Final_segment_map)):
+        # get the segment id
         seg_id = Final_segment_map.loc[i, 'SegmentId']
 
+        # get the upstream and downstream detector station id
         up_detector_id = Final_segment_map.loc[i, 'UpStationId']
         down_detector_id = Final_segment_map.loc[i, 'DownStationId']
 
+        # read the corresponding upstream and downstream detector data
         up_data = read_data_detector(up_detector_id, path, rename_dic)
         down_data = read_data_detector(down_detector_id, path, rename_dic)
 
+        # if both upstream and downstream data are not empty, then
         if up_data is not None and down_data is not None:
             weekday_hourly_up, weekend_hourly_up, weekday_peak_up, day_of_week_up, average_daily_up = data_aggregation(up_data, raw_data_resolution, start_year, end_year)
             weekday_hourly_down, weekend_hourly_down, weekday_peak_down, day_of_week_down, average_daily_down = data_aggregation(down_data, raw_data_resolution, start_year, end_year)
@@ -157,8 +162,9 @@ def main(Final_segment_map, path, raw_data_resolution, start_year, end_year):
             weekend_hourly = pd.merge(weekend_hourly_up, weekend_hourly_down, how='left', left_on='hour', right_on='hour', suffixes=('Up', 'Down'))
             weekday_peak = pd.merge(weekday_peak_up, weekday_peak_down, how='left', left_on='period', right_on='period', suffixes=('Up', 'Down'))
             day_of_week = pd.merge(day_of_week_up, day_of_week_down, how='left', left_on='day', right_on='day', suffixes=('Up', 'Down'))
-            average_daily = pd.merge(average_daily_up, average_daily_down, how='left', left_on='tem', right_on='tem', suffixes=('Up', 'Down'))
+            average_daily = average_daily_up.merge(average_daily_down, how='outer', left_index=True, right_index=True, suffixes=('Up', 'Down'))
 
+        # if downstream data is empty, while upstream data is not
         elif up_data is not None:
             weekday_hourly_up, weekend_hourly_up, weekday_peak_up, day_of_week_up, average_daily_up = data_aggregation(up_data)
 
@@ -175,8 +181,8 @@ def main(Final_segment_map, path, raw_data_resolution, start_year, end_year):
             day_of_week.rename(columns={'dayUp': 'day'}, inplace=True)
 
             average_daily = average_daily_up.add_suffix('Up')
-            average_daily.rename(columns={'temUp': 'tem'}, inplace=True)
 
+        # if upstream data is empty, while downstream data is not
         elif down_data is not None:
             weekday_hourly_down, weekend_hourly_down, weekday_peak_down, day_of_week_down, average_daily_down = data_aggregation(down_data)
 
@@ -193,7 +199,6 @@ def main(Final_segment_map, path, raw_data_resolution, start_year, end_year):
             day_of_week.rename(columns={'dayDown': 'day'}, inplace=True)
 
             average_daily = average_daily_down.add_suffix('Down')
-            average_daily.rename(columns={'temDown': 'tem'}, inplace=True)
 
         else:
             print('{} have no detector data for both upstream and downstream'.format(seg_id))
@@ -205,6 +210,7 @@ def main(Final_segment_map, path, raw_data_resolution, start_year, end_year):
         day_of_week['SegmentId'] = seg_id
         average_daily['SegmentId'] = seg_id
 
+        # append the aggregated data segment by segment
         total_weekday_hourly.append(weekday_hourly)
         total_weekend_hourly.append(weekend_hourly)
         total_weekday_peak.append(weekday_peak)
@@ -213,6 +219,7 @@ def main(Final_segment_map, path, raw_data_resolution, start_year, end_year):
 
         print(i)
 
+    # concatenate the aggregated data for all segments
     total_weekday_hourly = pd.concat(total_weekday_hourly, ignore_index=True).reset_index(drop=True)
     total_weekend_hourly = pd.concat(total_weekend_hourly, ignore_index=True).reset_index(drop=True)
     total_weekday_peak = pd.concat(total_weekday_peak, ignore_index=True).reset_index(drop=True)
@@ -237,9 +244,9 @@ agg_detector_data_path = 'AggregatedDetectorData'
 # given the resolution of the raw traffic data (seconds)
 raw_data_resolution = 20
 
-i = 0
-path = 'StationByStation'
-station_data = up_data.copy()
+# specify the start and end year of the analysis period
+start_year = 2018
+end_year = 2019
 
 
 if __name__ == '__main__':
