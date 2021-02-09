@@ -229,8 +229,8 @@ def main(Final_segment_map, path, raw_data_resolution, start_year, end_year):
     return total_weekday_hourly, total_weekend_hourly, total_weekday_peak, total_day_of_week, total_average_daily
 
 
-# relative path for the detector data
-detector_data_path = 'Detector_by_Detector'
+# relative path of the folder that contains the detector data
+detector_data_path = 'StationByStation'
 
 # relative path for the final segment base map
 base_map_path = 'Final_segment_map.csv'
@@ -260,7 +260,7 @@ if __name__ == '__main__':
     Final_segment_map = Final_segment_map.rename(columns=dict(zip(rename_dic["OriginalName"], rename_dic["StandardName"])))
 
     # generate aggregated traffic data for every segment
-    total_weekday_hourly, total_weekend_hourly, total_weekday_peak, total_day_of_week, total_average_daily = main(Final_segment_map, detector_data_path)
+    total_weekday_hourly, total_weekend_hourly, total_weekday_peak, total_day_of_week, total_average_daily = main(Final_segment_map, detector_data_path, raw_data_resolution, start_year, end_year)
 
     total_weekday_hourly.to_csv(os.path.join(agg_detector_data_path, 'total_weekday_hourly.csv'))
     total_weekend_hourly.to_csv(os.path.join(agg_detector_data_path, 'total_weekend_hourly.csv'))
