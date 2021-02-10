@@ -166,7 +166,7 @@ def main(Final_segment_map, path, raw_data_resolution, start_year, end_year):
 
         # if downstream data is empty, while upstream data is not
         elif up_data is not None:
-            weekday_hourly_up, weekend_hourly_up, weekday_peak_up, day_of_week_up, average_daily_up = data_aggregation(up_data)
+            weekday_hourly_up, weekend_hourly_up, weekday_peak_up, day_of_week_up, average_daily_up = data_aggregation(up_data, raw_data_resolution, start_year, end_year)
 
             weekday_hourly = weekday_hourly_up.add_suffix('Up')
             weekday_hourly.rename(columns={'hourUp': 'hour'}, inplace=True)
@@ -184,7 +184,7 @@ def main(Final_segment_map, path, raw_data_resolution, start_year, end_year):
 
         # if upstream data is empty, while downstream data is not
         elif down_data is not None:
-            weekday_hourly_down, weekend_hourly_down, weekday_peak_down, day_of_week_down, average_daily_down = data_aggregation(down_data)
+            weekday_hourly_down, weekend_hourly_down, weekday_peak_down, day_of_week_down, average_daily_down = data_aggregation(down_data, raw_data_resolution, start_year, end_year)
 
             weekday_hourly = weekday_hourly_down.add_suffix('Down')
             weekday_hourly.rename(columns={'hourDown': 'hour'}, inplace=True)
