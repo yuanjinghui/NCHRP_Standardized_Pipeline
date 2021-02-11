@@ -38,3 +38,6 @@ zone_id,StationId
 volume,Volume
 occupancy,Occupancy
 speed,Speed
+CrashDateTime,CrashDateTime
+Crash_Type,CrashType
+Crash_Seve,CrashSeverity
