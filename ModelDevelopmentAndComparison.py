@@ -296,6 +296,7 @@ rmse, mae = evaluation_metrics(Combined_weekday_peak_model_data_test['total_cras
 
 ############################################################
 # Basic Poisson Lognormal Model (I did not find a good way of developing Poisson Lognormal model in python, and I did this model in R) ##########################
+# please refer to the R code: FL_VA_ModelComparison.R  ####
 ############################################################
 
 # # Set the response, predictor, and random columns
