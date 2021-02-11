@@ -7,7 +7,7 @@ StartLat,StartLat
 StartLong,StartLong
 EndLat,EndLat
 EndLong,EndLong
-Miles,Miles
+Shape_Leng,Miles
 F_System,F_System
 Urban_Code,Urban_Code
 FacilType,FacilType
@@ -26,13 +26,13 @@ PeakParking,PeakParking
 CurveClassification,CurveClassification
 TerrainType,TerrainType
 GradeClassification,GradeClassification
-SpeedLimit,SpeedLimit
+SPEED,SpeedLimit
 IRI,IRI
 Sequence,Sequence
 Up_zone,UpStationId
 Down_zone,DownStationId
 InternalExternal,InternalExternal
-RouteId,RouteId
+RoadName,RouteId
 Timestamp,Timestamp
 zone_id,StationId
 volume,Volume
