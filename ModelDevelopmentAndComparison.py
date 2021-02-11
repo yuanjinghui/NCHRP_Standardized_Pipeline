@@ -222,9 +222,6 @@ def calc_vif(X):
     return vif
 
 
-# X = model_data.copy()
-
-
 def calc_vif_automatic(X):
     vif = calc_vif(X)
     num_var = len(vif)
@@ -274,19 +271,7 @@ def evaluation_metrics(test, predictions):
     return rmse, mae
 
 
-# y_pred = model.predict(Combined_weekday_peak_model_data_test)
-# y_true = Combined_weekday_peak_model_data_test['total_crashes'].tolist()
-# Combined_weekday_peak_model_data_test['y_pred'] = y_pred
-# mae = metrics.mean_absolute_error(y_true, y_pred)
-# rmse = (np.sqrt(metrics.mean_squared_error(y_true, y_pred)))
-
 rmse, mae = evaluation_metrics(Combined_weekday_peak_model_data_test['total_crashes'].values, model.predict(Combined_weekday_peak_model_data_test, offset=Combined_weekday_peak_model_data_test['log_seg_length']))
-
-# annual weekday crash frequency
-# evaluate_weekday_peak2weekday_annual = Combined_weekday_peak_model_data_test.groupby(by=['overall_id'], as_index=False).agg({'total_crashes': 'sum', 'y_pred': 'sum'})
-# mae = metrics.mean_absolute_error(evaluate_weekday_peak2weekday_annual['total_crashes'], evaluate_weekday_peak2weekday_annual['y_pred'])
-# rmse = np.sqrt(metrics.mean_squared_error(evaluate_weekday_peak2weekday_annual['total_crashes'], evaluate_weekday_peak2weekday_annual['y_pred']))
-
 
 ############################################################
 # Basic Poisson Model  ##########################
@@ -310,7 +295,7 @@ model.bic
 rmse, mae = evaluation_metrics(Combined_weekday_peak_model_data_test['total_crashes'].values, model.predict(Combined_weekday_peak_model_data_test, offset=Combined_weekday_peak_model_data_test['log_seg_length']))
 
 ############################################################
-# Basic Poisson Lognormal Model  ##########################
+# Basic Poisson Lognormal Model (I did not find a good way of developing Poisson Lognormal model in python, and I did this model in R) ##########################
 ############################################################
 
 # # Set the response, predictor, and random columns
@@ -502,31 +487,6 @@ with model_factory(Combined_weekday_peak_model_data_train):
 az.summary(trace, var_names=["beta", 'alpha', 'mu_a', 'sigma_a'])
 pm.gelman_rubin(trace)
 pm.traceplot(trace)
-# plt.show()
-# plt.savefig('test.png')
-# test the model performance
-# with model_factory(Combined_weekday_peak_model_data_test):
-#     ppc = pm.sample_posterior_predictive(trace) #or whatever
-
-# trace_df = trace_to_dataframe(trace)
-# trace_df.describe().drop('count').T
-# trace_df_summary = pm.summary(trace, varnames=["beta", 'alpha', 'mu_a', 'sigma_a'])[['mean','hdi_3%','hdi_97%']]
-# trace_df_summary.loc['beta[0]', 'mean']
-#
-# lam = np.exp(trace_df_summary.loc['beta[0]', 'mean'] + \
-#       trace_df_summary.loc['beta[1]', 'mean'] * Combined_weekday_peak_model_data_test['log_seg_length'] + \
-#       trace_df_summary.loc['beta[2]', 'mean'] * Combined_weekday_peak_model_data_test['lane_number_1'] + \
-#       trace_df_summary.loc['beta[3]', 'mean'] * Combined_weekday_peak_model_data_test['lane_number_2'] + \
-#       trace_df_summary.loc['beta[4]', 'mean'] * Combined_weekday_peak_model_data_test['rural_urban'] + \
-#       trace_df_summary.loc['beta[5]', 'mean'] * Combined_weekday_peak_model_data_test['IRI'] + \
-#       trace_df_summary.loc['beta[6]', 'mean'] * Combined_weekday_peak_model_data_test['log_volume'] + \
-#       trace_df_summary.loc['beta[7]', 'mean'] * Combined_weekday_peak_model_data_test['std_speed'] + \
-#       trace_df_summary.loc['beta[8]', 'mean'] * Combined_weekday_peak_model_data_test['avg_occupancy']).values
-#
-# y_true = Combined_weekday_peak_model_data_test['total_crashes'].tolist()
-# Combined_weekday_peak_model_data_test['y_pred'] = lam
-# mae = metrics.mean_absolute_error(y_true, lam)
-# rmse = (np.sqrt(metrics.mean_squared_error(y_true, lam)))
 
 
 def model_eval(trace, Combined_weekday_peak_model_data_test, vars=["beta", 'mu_a']):
@@ -967,9 +927,6 @@ random_search = RandomizedSearchCV(
 
 random_search.fit(x_train, y_train)
 y_pred = random_search.best_estimator_.predict(x_test)
-# clf = SVR(kernel='linear', C=100, verbose=True)
-# clf.fit(x_train, y_train)
-# y_pred = clf.predict(x_test)
 
 rmse, mae = evaluation_metrics(y_test, y_pred)
 
